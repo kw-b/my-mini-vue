@@ -5,7 +5,7 @@ class ReactiveEffect {
   }
   run() {
     activeEffect = this
-    this._fn()
+    return this._fn()
   }
 }
 
@@ -44,4 +44,7 @@ export const effect = (fn) => {
   const _effect = new ReactiveEffect(fn)
 
   _effect.run()
+
+  // _effect.run 上没有 _fn方法
+  return _effect.run.bind(_effect)
 }
