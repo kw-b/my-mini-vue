@@ -1,6 +1,6 @@
 import { it, expect, describe, vitest } from "vitest"
 import { reactive } from "../reactive"
-import { effect } from "../effect"
+import { effect, stop } from "../effect"
 
 describe("effect", () => {
   it("happy path", () => {
@@ -40,15 +40,17 @@ describe("effect", () => {
     // 3. 当响应式对象 set update 的时候 不会执行 fn 而是执行 scheduler
     // 4. 如果说当执行 runner 的时候, 会再次执行 fn
     let dummy
-    let run:any
+    let run: any
     const scheduler = vitest.fn(() => {
       run = runner
     })
-    const obj = reactive({foo:1})
-    const runner = effect(() => {
-      dummy = obj.foo
-    },
-    {scheduler})
+    const obj = reactive({ foo: 1 })
+    const runner = effect(
+      () => {
+        dummy = obj.foo
+      },
+      { scheduler }
+    )
     expect(scheduler).not.toHaveBeenCalled()
     expect(dummy).toBe(1)
     // should be called on first trigger
@@ -56,9 +58,44 @@ describe("effect", () => {
     expect(scheduler).toHaveBeenCalledTimes(1)
     // should not run yet
     expect(dummy).toBe(1)
-    // manually run 
+    // manually run
     run()
     // should have run
     expect(dummy).toBe(2)
+  })
+
+  it("stop", () => {
+    let dummy
+    const obj = reactive({ prop: 1 })
+    const runner = effect(() => {
+      dummy = obj.prop
+    })
+    obj.prop = 2
+    expect(dummy).toBe(2)
+    stop(runner)
+    obj.prop = 3
+    expect(dummy).toBe(2)
+
+    // stopped effect should still be manually callable
+    runner()
+    expect(dummy).toBe(3)
+  })
+
+  it("onStop", () => {
+    const obj = reactive({
+      foo: 1,
+    })
+    const onStop = vitest.fn()
+    let dummy
+    const runner = effect(
+      () => {
+        dummy = obj.foo
+      },
+      {
+        onStop,
+      }
+    )
+    stop(runner)
+    expect(onStop).toHaveBeenCalledTimes(1)
   })
 })

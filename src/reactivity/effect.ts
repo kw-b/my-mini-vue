@@ -1,12 +1,32 @@
+import { extend } from "./shared"
+
 class ReactiveEffect {
   private _fn: any
-  constructor(fn,public scheduler?) {
+  deps = []
+  active: boolean = true
+  onStop?: () => void
+  constructor(fn, public scheduler?) {
     this._fn = fn
   }
   run() {
     activeEffect = this
     return this._fn()
   }
+  stop() {
+    if (this.active) {
+      cleanUpEffect(this)
+      this.active = false
+      if(this.onStop){
+        this.onStop()
+      }
+    }
+  }
+}
+
+export const cleanUpEffect = (effect) => {
+  effect.deps.forEach((dep: any) => {
+    dep.delete(effect)
+  })
 }
 
 const targetMap = new Map()
@@ -24,7 +44,9 @@ export const track = (target, key) => {
     dep = new Set()
     depsMap.set(key, dep)
   }
+  if(!activeEffect) return 
   dep.add(activeEffect)
+  activeEffect.deps.push(dep)
 }
 
 export const trigger = (target, key) => {
@@ -42,12 +64,18 @@ export const trigger = (target, key) => {
 
 let activeEffect
 
-export const effect = (fn, options:any={}) => {
+export const effect = (fn, options: any = {}) => {
   // fn
-  const _effect = new ReactiveEffect(fn,options.scheduler)
-
+  const _effect = new ReactiveEffect(fn, options.scheduler)
+  extend(_effect,options)
   _effect.run()
 
   // _effect.run 上没有 _fn方法
-  return _effect.run.bind(_effect)
+  const runner: any = _effect.run.bind(_effect)
+  runner.effect = _effect
+  return runner
+}
+
+export const stop = (runner) => {
+  runner.effect.stop()
 }
