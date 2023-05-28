@@ -1,12 +1,19 @@
+import { h } from "../../lib/guide-min-vue.es.js"
 export const App = {
-  render(){
-    return h("div", `hi, ${this.msg}`)
+  render() {
+    return h(
+      "div",
+      {
+        id: "root",
+        class: ["red ", "hard"],
+      },
+      `hi, ${this.msg}`
+    )
   },
 
-  setup(){
-
+  setup() {
     return {
-      msg: "mini-vue"
+      msg: "mini-vue",
     }
-  }
-};
+  },
+}
