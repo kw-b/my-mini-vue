@@ -4,4 +4,7 @@ export const isObject = (val) => {
   return val !== null && typeof val == "object"
 }
 
-export const hasChanged = (val,newValue) => !Object.is(val,newValue)
+export const hasChanged = (val, newValue) => !Object.is(val, newValue)
+
+export const hasOwn = (val, key) =>
+  Object.prototype.hasOwnProperty.call(val, key)

@@ -1,3 +1,4 @@
+import { isObject } from "../shared"
 import {
   mutableHandlers,
   readonlyHandlers,
@@ -23,5 +24,9 @@ export const isReadonly = (value) => !!value[ReactiveFlag.IS_READONLY]
 export const isProxy = (value) => isReactive(value) || isReadonly(value)
 
 function createActiveObject(raw, baseHandlers) {
+  if(!isObject(raw)){
+    console.warn(`target${ raw }必须是一个对象`)
+    return raw
+  }
   return new Proxy(raw, baseHandlers)
 }

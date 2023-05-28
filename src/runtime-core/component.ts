@@ -1,16 +1,20 @@
+import { initProps } from "./componentProps"
 import { PublicInstanceProxyHandlers } from "./componentPublicInstance"
+import { shallowReadonly } from '../reactivity/reactive';
 
 export const createComponentInstance = (vNode) => {
   const component = {
     vNode,
     type: vNode.type,
-    setupState:{}
+    setupState:{},
+    props:{}
   }
   return component
 }
 
 export const setupComponent = (instance) => {
-  //[ ] initProp()
+  // [x]
+   initProps(instance, instance.vNode.props)
   //[ ] initSlots()
 
   setupStateFulComponent(instance)
@@ -22,7 +26,7 @@ function setupStateFulComponent(instance) {
   instance.proxy = new Proxy({_:instance},PublicInstanceProxyHandlers)
   if (setup) {
     // function object
-    const setupResult = setup()
+    const setupResult = setup(shallowReadonly(instance.props) )
     handleSetupResult(instance, setupResult)
   } else {
   }
