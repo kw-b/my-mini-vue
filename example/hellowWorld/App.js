@@ -7,7 +7,10 @@ export const App = {
         id: "root",
         class: ["red ", "hard"],
       },
-      `hi, ${this.msg}`
+      // string
+      // `hi, ${this.msg}`
+      // Array
+      [h("p",{class:"red"},"hi"),h("p",{class:"blue"},"HI")]
     )
   },
 
