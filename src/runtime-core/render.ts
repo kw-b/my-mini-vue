@@ -9,7 +9,6 @@ export const render = (vNode, container) => {
 function patch(vNode, container) {
   // 去处理组件
   // [x] 判断 vNode 是不是一个 element
-  debugger
   const {shapeFlag} = vNode
   if (shapeFlag & ShapeFlags.ELEMENT) {
     processElement(vNode, container)
@@ -36,7 +35,16 @@ function mountElement(vNode: any, container: any) {
   const { props } = vNode
   for (const key in props) {
     const val = props[key]
+    // 具体的 click -> 通用
+    // on + Event name
+    // onMousedown
+    const isOn = (key) => /^on[A-Z]/.test(key)
+    if(isOn(key)){
+      const event = key.slice(2).toLowerCase()
+      el.addEventListener(event,val)
+    }else{
     el.setAttribute(key, val)
+    }
   }
 
   container.append(el)
