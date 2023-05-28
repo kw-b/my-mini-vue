@@ -1,6 +1,8 @@
 import { h } from "../../lib/guide-min-vue.es.js"
+window.self = null
 export const App = {
   render() {
+    window.self = this
     return h(
       "div",
       {
@@ -8,9 +10,11 @@ export const App = {
         class: ["red ", "hard"],
       },
       // string
-      // `hi, ${this.msg}`
+      `hi, ${this.msg}`
       // Array
-      [h("p",{class:"red"},"hi"),h("p",{class:"blue"},"HI")]
+      // [h("p",{class:"red"},"hi"),h("p",{class:"blue"},"HI")]
+
+      // this.$el -> get root element
     )
   },
 

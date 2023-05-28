@@ -3,7 +3,8 @@ export const createVNode = (type,props?,children?) => {
   const vNode = {
     type,
     props,
-    children
+    children,
+    el: null
   }
   
   return vNode

@@ -21,13 +21,13 @@ function processElement(vNode, container) {
 }
 
 function mountElement(vNode: any, container: any) {
-  const el = document.createElement(vNode.type)
+  const el = (vNode.el = document.createElement(vNode.type))
   // string array
   const { children } = vNode
   if (typeof children === "string") {
     el.textContent = children
   } else if (Array.isArray(children)) {
-    mountChildren(vNode,el)
+    mountChildren(vNode, el)
   }
 
   const { props } = vNode
@@ -40,24 +40,27 @@ function mountElement(vNode: any, container: any) {
 }
 
 function mountChildren(vNode: any, container: any) {
-    vNode.children.forEach((v) => {
-      patch(v, container)
-    })
+  vNode.children.forEach((v) => {
+    patch(v, container)
+  })
 }
 
 function processComponent(vNode, container) {
   mountComponent(vNode, container)
 }
 
-function mountComponent(vNode, container) {
-  const instance = createComponentInstance(vNode)
+function mountComponent(initialVNode, container) {
+  const instance = createComponentInstance(initialVNode)
   setupComponent(instance)
-  setupRenderEffect(instance, container)
+  setupRenderEffect(instance,initialVNode, container)
 }
-function setupRenderEffect(instance, container) {
-  const subTree = instance.render()
+function setupRenderEffect(instance,initialVNode, container) {
+  const { proxy } = instance
+  const subTree = instance.render.call(proxy)
   // vNode -> patch
   // vNode -> element -> mountElement
   patch(subTree, container)
-}
 
+  // element -> mount
+  initialVNode.el = subTree.el
+}
